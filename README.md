@@ -7,7 +7,7 @@ Uses the Matlab languages for the finite element implementation and mesh generat
 Lab Session 1
 
  - Mesh creation with Matlab
- - Recalls of elliptic finite element method (1D)
+ - Review of elliptic finite element method (1D)
 
 -----
 Lab Session 2
@@ -18,4 +18,10 @@ Lab Session 2
 Lab Session 3
 
  - Convergence experiments on parabolic finite element method (1D)
+
+-----
+Lab Session 4
+
+ - Review of elliptic finite element method (2D)
+ - Implementation of parabolic finite element method (2D)
 
