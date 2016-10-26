@@ -11,24 +11,32 @@ thetaEE = 0;
 thetaCN = 0.5;
 
 % i
-t_step = [5, 10, 20, 40, 80];
+t_step = [5, 10, 20, 40, 80, 100];
 
 % j
-h_max = [0.2, 0.1, 0.05];
+h_max = [0.5, 0.2, 0.1, 0.05];
 
+% Matrices Definition
+% ErrH1ei = zeros(6,4);
+% ErrH1ee = zeros(6,4);
+% ErrH1cn = zeros(6,4);
 
-for i=1:5
-    for j=1:3
-        disp(['i = ', num2str(i)]);
-        disp(['j = ', num2str(j)]);
+% Computation Loop
+% Use evalc to suppress parabolic output
+for i=1:6 % Time Loop
+    for j=1:4 % Space Loop
+        disp(['h = ', num2str(h_max(j)), '  ',...
+              't = ', num2str(t_step(j)), '  ',... 
+              'i = ', num2str(i), '  ',... 
+              'j = ', num2str(j)]);
         
-        errHei = parabolic(h_max(j),t_step(i),thetaEI);
+        [T, errHei] = evalc('parabolic(h_max(j),t_step(i),thetaEI);');
         ErrH1ei(i,j) = errHei;
         
-        errHee = parabolic(h_max(j),t_step(i),thetaEE);
+        [T, errHee] = evalc('parabolic(h_max(j),t_step(i),thetaEE);');
         ErrH1ee(i,j) = errHee;
         
-        errHcn = parabolic(h_max(j),t_step(i),thetaCN);
+        [T, errHcn] = evalc('parabolic(h_max(j),t_step(i),thetaCN);');
         ErrH1cn(i,j) = errHcn;
     end
 end
