@@ -24,4 +24,27 @@ Lab Session 4
 
  - Review of elliptic finite element method (2D)
  - Implementation of parabolic finite element method (2D)
+ 
+------
+Lab Session 5
+
+ - Implementation Of The Elliptic Problem For Vectorial Functions
+ 
+ 
+ -----
+ Lab Session 6
+ 
+  - Implementation Of The P2/P0 Element For The Solution For The Stokes Problem
+  
+  
+ -----
+ Lab Session 7
+ 
+  - Implementation Of The MINI Element For The Solution For The Stokes Problem
+  
+  
+ -----
+ Lab Session 8
+ 
+  - Comparison Between P2/P0 And MINI Element
 

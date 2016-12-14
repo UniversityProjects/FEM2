@@ -1,0 +1,14 @@
+function z=ue(x,y,k)
+% -------
+% a due componenti, la componente (1 oppure 2) e' decisa da k
+% -------
+
+% PROBLEMA "TRIGONOMETRICO" (STOKES)
+
+if k==1        % prima componente
+    z = -(cos(pi*x)^2)*cos(2*pi*y)*sin(2*pi*y)/2;
+elseif k==2    % seconda componente
+    z = (cos(2*pi*y)^2)*cos(2*pi*x)*sin(2*pi*x)/2;
+end
+
+% p(x,y) = sin(2*pi*x) - sin(2*pi*y);
