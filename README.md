@@ -46,5 +46,11 @@ Lab Session 5
  -----
  Lab Session 8
  
-  - Comparison Between P2/P0 And MINI Element
+  - Comparison Between P2/P0 And MINI Element For The Stokes Problem
+  
+
+ -----
+ Lab Session 9
+ 
+  - Mixed Form Diffusion With Raviart-Thomas Element
 
