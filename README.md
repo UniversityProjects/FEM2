@@ -31,26 +31,26 @@ Lab Session 5
  - Implementation Of The Elliptic Problem For Vectorial Functions
  
  
- -----
- Lab Session 6
+-----
+Lab Session 6
  
   - Implementation Of The P2/P0 Element For The Solution For The Stokes Problem
   
   
- -----
- Lab Session 7
+-----
+Lab Session 7
  
   - Implementation Of The MINI Element For The Solution For The Stokes Problem
   
   
- -----
- Lab Session 8
+-----
+Lab Session 8
  
   - Comparison Between P2/P0 And MINI Element For The Stokes Problem
   
 
- -----
- Lab Session 9
+-----
+Lab Session 9
  
   - Mixed Form Diffusion With Raviart-Thomas Element
 
