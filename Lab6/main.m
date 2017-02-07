@@ -1,5 +1,5 @@
 %
-function [uh,ph] = main_parz(xv,yv,vertices,edges,endpoints,boundary,boundedges);
+function [uh,ph] = main(xv,yv,vertices,edges,endpoints,boundary,boundedges);
 %
 % ---------------------------------------------------------------
 % FEM per k=2
@@ -14,18 +14,6 @@ function [uh,ph] = main_parz(xv,yv,vertices,edges,endpoints,boundary,boundedges)
 % ... diretta dal caso scalare (anche al locale),
 % ... mentre la parte B e' costruita gia correttamente al locale
 % ---------------------------------------------------------------
-% NOTA: manca il calcolo dell'errore per la pressione
-% ---------------------------------------------------------------
-%
-
-% clear all
-% close all
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Mesh Load
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%[xv,yv,vertices,edges,endpoints,boundary,boundedges] = load('meshesquad.mat');
-%
 %
 % FORMULA DI QUADRATURA 
 %
@@ -165,7 +153,7 @@ for iele=1:nele
       % ... componente del loro gradiente.
       % Si deve anche trasformare il gradiente sul elemento fisico
       % ... prima di selezionare la componente.
-            if j < 6.5         % prime sei funzioni di base
+            if j<6.5         % prime sei funzioni di base
                 tmp = JFIT(1,1:2)*[gphihqx(j,q);gphihqy(j,q)];
             elseif j > 6.5   % seconde sei funzioni di base
                 tmp = JFIT(2,1:2)*[gphihqx(j-6,q);gphihqy(j-6,q)];
@@ -264,8 +252,8 @@ clear b
 % -----------------------------------------------------
 % Costruisco la matrice totale (parti A e B) e il carico
 %
-Kh = [Ah, Bh; Bh', zeros(nele)];
-fh = [fh; zeros(nele,1) ];
+Kh = [Ah,Bh;Bh',zeros(nele)];
+fh = [fh;zeros(nele,1)];
 
 % -----------------------------------------------------
 % SE le condizioni al bordo sulla velocita' sono tutte
@@ -274,8 +262,8 @@ fh = [fh; zeros(nele,1) ];
 % ALTRIMENTI commentare le TRE righe sotto.
 % -----------------------------------------------------
 N = length(NL);
-Kh = [Kh, [zeros(N,1); VettArea']; [zeros(1,N), VettArea, 0] ];
-fh = [fh; 0];
+Kh = [Kh,[zeros(N,1);VettArea'];[zeros(1,N),VettArea,0]];
+fh = [fh;0];
 
 
 uh = zeros(2*(nver+nedge),1);
@@ -283,7 +271,7 @@ uh = zeros(2*(nver+nedge),1);
 % Risolviamo il sistema lineare
 % -------------------------------
 solh = Kh\fh;
-uh(NL) = solh(1:N);            % estraggo le velocità
+uh(NL) = solh(1:N);            % estraggo le velocit?
 uh1 = uh(1:length(uh)/2);      % estraggo la prima componente
 uh2 = uh(length(uh)/2+1:end);  % estraggo la seconda componente
 ph  = solh(N+1:N+nele);        % estraggo le pressioni
@@ -317,8 +305,8 @@ for i=1:6
     end
 end
 %
-errL2sq = 0;   % errore L2 (velocità)
-errH1sq = 0;   % errore H1 (velocità)
+errL2sq = 0;   % errore L2 (velocit?)
+errH1sq = 0;   % errore H1 (velocit?)
 preL2sq = 0;   % errore L2 (pressioni) 
 %
 for iele=1:nele
@@ -374,6 +362,7 @@ for iele=1:nele
     %
     sq  = 0;
     sqH = 0;
+    sqP = 0;
     %
     for q=1:Nq
         %
@@ -398,21 +387,23 @@ for iele=1:nele
         %
       sq = sq + (uexact(xq,yq,1)-tmp1)^2*whq(q) + (uexact(xq,yq,2)-tmp2)^2*whq(q);     
       sqH = sqH + norm(uexactG(xq,yq,1) - tmpH1)^2*whq(q) ...
-                + norm(uexactG(xq,yq,2) - tmpH2)^2*whq(q);      
+                + norm(uexactG(xq,yq,2) - tmpH2)^2*whq(q);
+      sqP = sqP + (pexact(xq,yq)-ph(iele))^2*whq(q);       
     end
     %
     sq = sq*2*area;
     sqH = sqH*2*area;
+    sqP = sqP*2*area;
     %
     errL2sq = errL2sq + sq;
     errH1sq = errH1sq + sqH;
+    preL2sq = preL2sq + sqP;
     %
 end
 %
-disp('Errore in L2 delle velocità')
 errL2 = sqrt(errL2sq)  % (comprende ambo le componenti)
-disp('Errore in H1 delle velocità')
 errH1 = sqrt(errH1sq)  % (comprende ambo le componenti) 
+errPR = sqrt(preL2sq)  % (errore pressioni)
 %
 
 

@@ -9,7 +9,8 @@ out = 'no';
 plot = 'no';
 
 % Lambda Array Definition
-lambda = [1, 100, 10000, 1000000];
+% lambda = [1, 100, 10000, 1000000];
+lambda = [0.0001, 0.01, 1, 100, 10000, 1000000];
 nl = length(lambda);
 
 % h_max Array Definition
@@ -77,7 +78,7 @@ disp(' ');
   figure(1);
   hold on;
  
-    subplot(2, 2, j);
+    subplot(3, 3, j);
     loglog (h, errL2(:,j), '-*r', h, h.^3,'-b');
     grid on;
     legend ('ErrL2', 'h^3', 'location', 'northeastoutside');
@@ -91,7 +92,7 @@ disp(' ');
  
   hold on;
   
-      subplot(2, 2, j), loglog (h, errH1(:,j), '-*r', h, h.^2,'-b');
+      subplot(3, 3, j), loglog (h, errH1(:,j), '-*r', h, h.^2,'-b');
       grid on;
       legend ('ErrH1', 'h^2', 'location', 'northeastoutside');
       title (['ErrH1 (L = ', num2str(lambda(j)), ')']);
