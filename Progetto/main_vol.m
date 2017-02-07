@@ -43,20 +43,19 @@ for i=1:n
     
     %%% Error Computation
     % [uh(i), errL2(i), errH1(i)] = main_P2_Vect (...
-    [errL2(i,j), errH1(i,j)] = P2_Vect (...
-                                         xv, yv, ...
-                                         vertices, ...
-                                         edges, ...
-                                         endpoints, ...
-                                         boundary, ...
-                                         boundedges, ...
-                                         lambda(j), ...
-                                         out, plot ...
-                                         );
-                                     
-    disp(['    errL2 = ', num2str(errL2(i,j))]);
-    disp(['    errH1 = ', num2str(errH1(i,j))]);
-                                   
+    [errL2(i,j), errH1(i,j)] = P2_Vect_vol (...
+                                            xv, yv, ...
+                                            vertices, ...
+                                            edges, ...
+                                            endpoints, ...
+                                            boundary, ...
+                                            boundedges, ...
+                                            lambda(j), ...
+                                            out, plot ...
+                                            );
+   
+     disp(['    errL2 = ', num2str(errL2(i,j))]);
+     disp(['    errH1 = ', num2str(errH1(i,j))]);
     
 end
 end
@@ -66,9 +65,10 @@ clc
 disp(['h = ', num2str(h)]);
 disp(' ');
 
+
 % Plot Loop
  for j=1:nl
-     
+    
   disp(['lambda = ', num2str(lambda(j))]); 
   disp(['     errL2 = ', num2str(errL2(:,j)')]);
   disp(['     errH1 = ', num2str(errH1(:,j)')]); 
@@ -81,9 +81,9 @@ disp(' ');
     loglog (h, errL2(:,j), '-*r', h, h.^3,'-b');
     grid on;
     legend ('ErrL2', 'h^3', 'location', 'northeastoutside');
-    title (['ErrL2 (L = ', num2str(lambda(j)), ')']);
+    title (['Vol: ErrL2 (L = ', num2str(lambda(j)), ')']);
   
-  saveas (1, 'convL2.png');
+  saveas (1, 'vol_convL2.png');
   
 % 
 %  Figure 2
@@ -94,9 +94,9 @@ disp(' ');
       subplot(2, 2, j), loglog (h, errH1(:,j), '-*r', h, h.^2,'-b');
       grid on;
       legend ('ErrH1', 'h^2', 'location', 'northeastoutside');
-      title (['ErrH1 (L = ', num2str(lambda(j)), ')']);
+      title (['Vol: ErrH1 (L = ', num2str(lambda(j)), ')']);
 
-  saveas (2, 'convH1.png'); 
+  saveas (2, 'vol_convH1.png'); 
   
      
   end

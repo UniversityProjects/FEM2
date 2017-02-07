@@ -1,5 +1,5 @@
 %
-function [errL2, errH1] = P2_Vect (...
+function [errL2, errH1] = P2_Vect_vol (...
                                             xv, yv, ...
                                             vertices, ...
                                             edges, ...
@@ -86,6 +86,10 @@ for iele=1:nele
     x3 = xv(v3);
     y3 = yv(v3);
     %
+    % baricentro del triangolo
+    xb = (x1+x2+x3)/3;
+    yb = (y1+y2+y3)/3;    
+    %
     % Jacobiana della trasformazione F
     %
     JF = [x2-x1 x3-x1
@@ -104,11 +108,11 @@ for iele=1:nele
     KE = zeros(6,6);
     %
     for i=1:6
-        for j=1:i-1
-            KE(i,j) = KE(j,i);
-        end
-        %
-        for j=i:6
+%         for j=1:i-1
+%             KE(i,j) = KE(j,i);
+%         end
+%         %
+        for j=1:6
             for q=1:Nq
                 %
                 % calcoliamo l'immagine (xq,yq) sul triangolo
@@ -124,15 +128,18 @@ for iele=1:nele
                 tmp = dot(... % Grad:Grad Term
                       (JFIT*[gphihqx(j,q);gphihqy(j,q)]),...
                       (JFIT*[gphihqx(i,q);gphihqy(i,q)])...
-                      ) + lambda*... % Divergence Term
-                      sum(JFIT*[gphihqx(j,q);gphihqy(j,q)])*...
-                      sum(JFIT*[gphihqx(i,q);gphihqy(i,q)]);
-                %
+                      );
+               %
                 KE(i,j) = KE(i,j) + tmp*whq(q);
                %  KE(i,j) = KE(i,j) + c(xq,yq)*tmp*whq(q);            
             end
             %
-            KE(i,j) = 2*area*KE(i,j);
+            % Divergence Term
+            % Barycenter Integration Formula for
+            % lambda*div(phi_j)*div(phi_i)
+            vol = lambda*divphih2(j,xq,yq)*divphih2(i,xq,yq);
+            %
+            KE(i,j) = 2*area*KE(i,j) + area*vol;
         end
     end
     KE = [KE,zeros(6);zeros(6),KE]; % matrice duplicata ("vettoriale")
@@ -330,9 +337,7 @@ end
 %
 
 errL2 = sqrt(errL2sq/uL2);  % Relative L2 Error
-errH1 = sqrt(errH1sq/uH1);  % Relative
-% errL2 = sqrt(errL2sq);  % L2 Error
-% errH1 = sqrt(errH1sq);  % H1 Errore H1 Error
+errH1 = sqrt(errH1sq/uH1);  % Relative H1 Error
 
 if (strcmp(out,'yes'))
     disp(['      L2 Error (Relative): ' num2str(errL2)]);
@@ -359,16 +364,12 @@ for k=1:size(vertices,1)
     vert_temp=[xv(index),yv(index); xv(index(1)),yv(index(1))];
     fill3(vert_temp(:,1),vert_temp(:,2),uu_tmp,uu_tmp); 
 end
-title('Approximated Solution');
 view(3)
 grid on
 colorbar
 hold off    
 end
-      
-
-
-
+        
 % ----------------------------------
 % PLOT DELLA SOLUZIONE uh COME FRECCE AI VERTICI
 % ----------------------------------        

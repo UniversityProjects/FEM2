@@ -6,9 +6,16 @@ function Z=uexactG(x,y,k)
 
 % PROBLEMA "TRIGONOMETRICO"
 
+% if k==1        % prima componente
+%     Z = pi*[cos(x*pi).*sin(y*pi);sin(x*pi).*cos(y*pi)];
+% elseif k==2    % seconda componente
+%     Z = 3*pi*[cos(x*pi).*sin(y*pi);sin(x*pi).*cos(y*pi)];
+% end
+
+
 if k==1        % prima componente
-    Z = pi*[cos(x*pi).*sin(y*pi);sin(x*pi).*cos(y*pi)];
+    Z = x*y*(x^2 - 1)*(y^2 - 1);
 elseif k==2    % seconda componente
-    Z = 3*pi*[cos(x*pi).*sin(y*pi);sin(x*pi).*cos(y*pi)];
+    Z = -x*y*(x^2 - 1)*(y^2 - 1);
 end
 
