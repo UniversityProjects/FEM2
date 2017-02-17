@@ -2,6 +2,9 @@ clc
 clear all
 close all
 
+% Start time
+tic
+
 % out = 'yes';
 out = 'no';
 
@@ -9,8 +12,7 @@ out = 'no';
 plot = 'no';
 
 % Lambda Array Definition
-% lambda = [0.0001, 0.001, 1, 100, 10000, 1000000];
-lambda = [0.0001, 1, 1000, 1000000, 10000000000];
+lambda = [0.0001, 0.001, 1, 100, 10000, 1000000];
 nl = length(lambda);
 
 % h_max Array Definition
@@ -64,6 +66,9 @@ end
 
 clc
 
+wtime = toc;
+fprintf ( 1, '  MAIN took %f seconds to run.\n', wtime );
+
 disp(['h = ', num2str(h)]);
 disp(' ');
 
@@ -103,7 +108,7 @@ disp(' ');
   end
 
   
- % LATEX ERROR TABLE
+  % LATEX ERROR TABLE 
  latex = 'yes';
  
 if (strcmp(latex,'yes'))
@@ -111,8 +116,14 @@ if (strcmp(latex,'yes'))
  
  sL2 = 'ErrL2	&	$';
  sH1 = 'ErrH1	&	$';   
-     
+
+  fprintf ('\n');
+  disp('\hfill \\');
   disp(['lambda = ', num2str(lambda(j))]); 
+  disp('\begin{table}[!h]');
+  disp('\centering');
+  disp('\begin{tabular}{ | c | c | c | c | c | c | c | }');
+  disp('\hline');
   
   for i=1:n
       sL2 = [sL2, num2str(errL2(i,j))];
@@ -129,12 +140,10 @@ if (strcmp(latex,'yes'))
   
   disp(sL2);
   disp(sH1);
-  disp('');
+  disp('\end{tabular}');
+  disp('\end{table} ');   
+  fprintf ('\n');
   
- end 
-  
-end % End If
-  
-
-  
-
+ end % end for
+ 
+end % end if
