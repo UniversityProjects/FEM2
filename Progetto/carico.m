@@ -4,11 +4,9 @@ syms x y real;
 
 % Prima Componente
 ue1 = 0.25*((x^2 - 1)^2)*(y^2 - 1)*y;
-% ue1 = cos((pi/2)*x)*cos((pi/2)*y);
 
 % Seconda Componente
 ue2 = 0.25*((y^2 - 1)^2)*(1 - x^2)*x;
-% ue2 = cos((pi/2)*x)*cos((pi/2)*y);
 
 % Derivate Prime Prima Componente
 ue1x = diff(ue1,x);

@@ -250,7 +250,7 @@ uh2 = uh(length(uh)/2+1:end);  % estraggo la seconda componente
 %
 % Adesso calcoliamo l'errore in L2 e H1 rispetto a ue
 %
-[errL2, errH1] = err(uh, 'degree=5', xv, yv, vertices, edges, endpoints, out);
+[errL2, errH1] = err(uh, 'degree=2', xv, yv, vertices, edges, endpoints, out);
 
 %
 

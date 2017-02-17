@@ -24,7 +24,7 @@ function [errL2, errH1] = P2_Vect_vol (...
 %
 % FORMULA DI QUADRATURA 
 
-fdq = 'degree=5';
+fdq = 'degree=2';
 %
 [xhq,yhq,whq]=quadratura(fdq);
 %
