@@ -1,14 +1,14 @@
 %
-function [errL2, errH1] = P2_Vect_vol (...
-                                            xv, yv, ...
-                                            vertices, ...
-                                            edges, ...
-                                            endpoints, ...
-                                            boundary, ...
-                                            boundedges, ...
-                                            lambda, ...
-                                            out, plot ...
-                                            )
+function [errL2, errH1] = P2_Vect_vol2 (...
+                                       xv, yv, ...
+                                       vertices, ...
+                                       edges, ...
+                                       endpoints, ...
+                                       boundary, ...
+                                       boundedges, ...
+                                       lambda, ...
+                                       out, plot ...
+                                       )
 %
 % ---------------------------------------------------------------
 % FEM per k=2
@@ -24,7 +24,7 @@ function [errL2, errH1] = P2_Vect_vol (...
 %
 % FORMULA DI QUADRATURA 
 
-fdq = 'degree=2';
+fdq = 'degree=5';
 %
 [xhq,yhq,whq]=quadratura(fdq);
 %
@@ -65,6 +65,7 @@ end
 % ASSEMBLIAMO LA MATRICE DEI COEFFICIENTI
 %
 A = sparse(2*(nver+nedge),2*(nver+nedge));
+B = sparse(2*(nver+nedge),2*(nver+nedge));
 b = zeros(2*(nver+nedge),1);
 % b1 = zeros(nver+nedge,1);   % parte carico prima componente
 % b2 = zeros(nver+nedge,1);   % parte carico seconda componente
@@ -88,7 +89,7 @@ for iele=1:nele
     %
     % baricentro del triangolo
     xb = (x1+x2+x3)/3;
-    yb = (y1+y2+y3)/3;    
+    yb = (y1+y2+y3)/3; 
     %
     % Jacobiana della trasformazione F
     %
@@ -103,15 +104,15 @@ for iele=1:nele
     %
     JFIT = JFI';
     %
-    area = 1/2*det(JF);
+    area = 0.5*det(JF);
     %
-    KE = zeros(6,6);
+    KE = zeros(6,6);    % matrici locali per la A (vedi NOTA in cima)   
+    BE = zeros(12,12);   % matrici locali per la B
     %
     for i=1:6
 %         for j=1:i-1
 %             KE(i,j) = KE(j,i);
-%         end
-%         %
+%         end  
         for j=1:6
             for q=1:Nq
                 %
@@ -119,12 +120,6 @@ for iele=1:nele
                 % corrente del nodo di quadratura
                 % (xhq(q),yhq(q)) che sta 
                 % sull'elemento di rif.
-                %
-                tmp = JF*[xhq(q);yhq(q)]+[x1;y1];
-                %
-                xq = tmp(1);
-                yq = tmp(2);
-                %
                 tmp = dot(... % Grad:Grad Term
                       (JFIT*[gphihqx(j,q);gphihqy(j,q)]),...
                       (JFIT*[gphihqx(i,q);gphihqy(i,q)])...
@@ -134,15 +129,37 @@ for iele=1:nele
                %  KE(i,j) = KE(i,j) + c(xq,yq)*tmp*whq(q);            
             end
             %
-            % Divergence Term
-            % Barycenter Integration Formula for
-            % lambda*div(phi_j)*div(phi_i)
-            vol = lambda*divphih2(j,xq,yq)*divphih2(i,xq,yq);
-            %
-            KE(i,j) = 2*area*KE(i,j) + area*vol;
+            KE(i,j) = 2*area*KE(i,j);
         end
     end
     KE = [KE,zeros(6);zeros(6),KE]; % matrice duplicata ("vettoriale")
+    
+    % ----------------------
+    % parte per la DIVERGENZA (matrice B)
+    % (si calcola l'integrale della DIV sul elemento, poiche' pressioni P0)
+    % ----------------------
+    %        
+    for j=1:12  % 12 e' il numero di GdL locali considerando che e' vettoriale
+        for i=1:12
+            if j < 6.5         % prime sei funzioni di base
+                [gx, gy] = gradhphih2 (j, xb, yb);
+                tmpJ = JFIT(1,1:2)*[gx; gy];
+            elseif j > 6.5   % seconde sei funzioni di base
+                [gx, gy] = gradhphih2 (j-6, xb, yb);
+                tmpJ = JFIT(2,1:2)*[gx; gy];
+            end
+            if i < 6.5         % prime sei funzioni di base
+                [gx, gy] = gradhphih2 (i, xb, yb);
+                tmpI = JFIT(1,1:2)*[gx; gy];
+            elseif i > 6.5   % seconde sei funzioni di base
+                [gx, gy] = gradhphih2 (i-6, xb, yb);
+                tmpI = JFIT(2,1:2)*[gx; gy];
+            end
+            vol = lambda*tmpJ*tmpI;
+            BE(i, j) = area*vol;   
+        end
+    end
+    
     %
     % ASSEMBLIAMO LA MATRICE GRANDE
     %
@@ -161,16 +178,19 @@ for iele=1:nele
     % array dei dof globali
     %
     dofg = [v1 v2 v3 nver+l1 nver+l2 nver+l3];   % prima componente
-    dofg = [dofg , dofg + (nver+nedge)];     % aggiungo seconda componente
+    dofgg = [dofg , dofg + (nver+nedge)];     % aggiungo seconda componente
     %
-    A(dofg,dofg) = A(dofg,dofg) + KE;
+    A(dofgg,dofgg) = A(dofgg,dofgg) + KE;
     %
+    % ------------------------------------------------------
+   % ASSEMBLIAMO LA MATRICE B
+   % ------------------------------------------------------
+   B(dofgg,dofgg) = B(dofgg,dofgg) + BE;
 end
 
 % ---------------------------------
 % CALCOLO IL TERMINE DI CARICO 
-% Le due componenti fatte separatamente usando P2load.m
-% ... e poi combinate. Nota: e' gia ritagliato dei dofs di bordo.
+% Le due componenti fatte separatamente usando P2load.m.
 % ---------------------------------
 b1 = P2load1(xv,yv,vertices,edges,boundary,boundedges,endpoints);
 b2 = P2load2(xv,yv,vertices,edges,boundary,boundedges,endpoints);
@@ -194,8 +214,32 @@ uh = zeros(2*(nver+nedge),1);
 % estraiamo la sottomatrice corrispondente
 % ai nodi liberi NL
 %
-Kh = A(NL,NL);
-fh = b;
+
+
+Ah = A(NL,NL);
+Bh = B(NL,NL);
+fh = b(NL);
+
+% disp(['sizeA = ', num2str(size(A))]);
+% disp(['sizeAh = ', num2str(size(Ah))]);
+% disp(['sizB = ', num2str(size(B))]);
+% disp(['sizeBh = ', num2str(size(Bh))]);
+% disp(['sizeb = ', num2str(size(b))]);
+% disp(['sizefh = ', num2str(size(fh))]);
+
+
+
+%
+clear A
+clear B
+clear b
+% -----------------------------------------------------
+% Costruisco la matrice totale (parti A e B) e il carico
+%
+Kh = Ah + Bh;
+% disp(['sizeKh = ', num2str(size(Kh))]);
+% disp(['sizefh = ', num2str(size(fh))]);
+
 %
 uh(NL) = Kh\fh;
 uh1 = uh(1:length(uh)/2);     % estraggo la prima componente
@@ -207,145 +251,11 @@ uh2 = uh(length(uh)/2+1:end);  % estraggo la seconda componente
 %                                    nel punto medio
 %                                    dell'edge
 %
-% Adesso calcoliamo l'errore in L2 rispetto a ue
+% Adesso calcoliamo l'errore in L2 e H1 rispetto a ue
 %
-% FORMULA DI QUADRATURA PER CALCOLARE L'ERRORE
-%
-fdq = 'degree=5';
-%
-[xhq,yhq,whq]=quadratura(fdq);
-%
-Nq = length(xhq);
-%
-% (xhq,yhq) = nodi di quadratura su T cappello
-% whq = relativi pesi
-%
-% funzioni di base calcolate nei nodi di 
-% quadratura dell'elemento di riferimento
-%
-phihq = zeros(6,Nq);
-%
-for i=1:6
-    for q=1:Nq
-        phihq(i,q) = phih2(i,xhq(q),yhq(q));
-        [gx,gy] = gradhphih2(i,xhq(q),yhq(q));
-        gphihqx(i,q) = gx;
-        gphihqy(i,q) = gy;
-    end
-end
-%
-errL2sq = 0;    % L2 error
-errH1sq = 0;    % H1 error
-uL2 = 0;        % norma L2 della sol. esatta (serve per err. relativo)
-uH1 = 0;        % norma H1 della sol. esatta (serve per err. relativo)
-%
-for iele=1:nele
-    %
-    v1 = vertices(iele,1);
-    v2 = vertices(iele,2);
-    v3 = vertices(iele,3);
-    %
-    x1 = xv(v1);
-    y1 = yv(v1);
-    %
-    x2 = xv(v2);
-    y2 = yv(v2);
-    %
-    x3 = xv(v3);
-    y3 = yv(v3);
-    %
-    % Jacobiana della trasformazione F
-    %
-    JF = [x2-x1 x3-x1
-          y2-y1 y3-y1];
-    %
-    % inversa
-    %
-    JFI = inv(JF);
-    %
-    % trasposta
-    %
-    JFIT = JFI';
-    %
-    area = 1/2*det(JF);
-    %
-    % recuperiamo i coefficienti delle phi_i
-    %
-    % gradi di liberta' globali:
-    %
-    % vertice i  ----> i
-    %
-    % lato l -----> nver+l
-    %
-    % recuperiamo i lati del triangolo
-    %
-    l1 = edges(iele,1);
-    l2 = edges(iele,2);
-    l3 = edges(iele,3);
-    %
-    % array dei dof globali del triangolo T
-    %
-    dofg = [v1 v2 v3 nver+l1 nver+l2 nver+l3];
-    %
-    uT1 = uh1(dofg);   % prima componente
-    uT2 = uh2(dofg);   % seconda componente 
-    %
-    sq  = 0;
-    sqH = 0;
-    uL = 0;
-    uH  = 0;
-    %
-    for q=1:Nq
-        %
-        % calcolo la sommatoria sulle phi_i
-        %
-        tmp1  = 0;       % valori della funzione uh (prima componente)
-        tmp2  = 0;       % (seconda componente)
-        tmpH1 = [0;0];   % valori dei gradienti di uh (prima componente)
-        tmpH2 = [0;0];   % (seconda componente)
-        %
-        for i=1:6
-            tmp1 = tmp1 + uT1(i)*phihq(i,q);
-            tmp2 = tmp2 + uT2(i)*phihq(i,q);
-            tmpH1= tmpH1 + uT1(i)*(JFIT*[gphihqx(i,q);gphihqy(i,q)]); 
-            tmpH2= tmpH2 + uT2(i)*(JFIT*[gphihqx(i,q);gphihqy(i,q)]);
-        end
-        %
-        pos = JF*[xhq(q);yhq(q)]+[x1;y1];
-        %
-        xq = pos(1);
-        yq = pos(2);
-        %
-      sq = sq + (uexact(xq,yq,1)-tmp1)^2*whq(q) + (uexact(xq,yq,2)-tmp2)^2*whq(q);     
-      sqH = sqH + norm(uexactG(xq,yq,1) - tmpH1)^2*whq(q) ...
-                + norm(uexactG(xq,yq,2) - tmpH2)^2*whq(q);
-      uL = uL + (norm(uexact(xq,yq,1))^2+norm(uexact(xq,yq,2))^2)*whq(q);
-      uH = uH + (norm(uexactG(xq,yq,1))^2+norm(uexactG(xq,yq,2))^2)*whq(q);       
-    end
-    %
-    sq = sq*2*area;
-    sqH = sqH*2*area;
-    uL = uL*2*area;
-    uH = uH*2*area;
-    %
-    errL2sq = errL2sq + sq;
-    errH1sq = errH1sq + sqH;
-    uL2 = uL2 + uL;
-    uH1 = uH1 + uH;
-    %
-end
-%
-
-errL2 = sqrt(errL2sq/uL2);  % Relative L2 Error
-errH1 = sqrt(errH1sq/uH1);  % Relative H1 Error
-
-if (strcmp(out,'yes'))
-    disp(['      L2 Error (Relative): ' num2str(errL2)]);
-    disp(['      H1 Error (Relative): ' num2str(errH1)]);
-end
+[errL2, errH1] = err(uh, 'degree=5', xv, yv, vertices, edges, endpoints, out);
 
 %
-
 
 % ----------------------------------
 % PLOT DELLA SOLUZIONE uh COMPONENTE PER COMPONENTE
@@ -369,6 +279,22 @@ grid on
 colorbar
 hold off    
 end
+
+
+% ----------------------------------
+% PLOT DELLA SOLUZIONE u ESATTA COMPONENTE PER COMPONENTE
+% (basato sui valori ai vertici)
+% ----------------------------------
+if (strcmp(plot,'yes'))
+figure()
+fmesh(@(x,y) 0.25*((x^2 - 1)^2)*(y^2 - 1)*y, [-1 1 -1 1]);
+title('Exact Solution');
+view(3)
+grid on
+colorbar
+hold off    
+end
+
         
 % ----------------------------------
 % PLOT DELLA SOLUZIONE uh COME FRECCE AI VERTICI
@@ -380,3 +306,7 @@ if (strcmp(plot,'yes'))
 end
 %
 %
+
+
+
+

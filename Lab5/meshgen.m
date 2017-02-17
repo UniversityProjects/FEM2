@@ -32,7 +32,7 @@ M =  [3 4 -1 1 1 -1 1 1 -1 -1]'; % dati del dominio Quadrato [-1,1]^2
 D=decsg(M);
 [P,E,T]=initmesh(D,'Hmax',hmax); % NOTA: questi si possono ottenere anche
                                  % ... con PDE tools (interfaccia grafica)
-% pdemesh(P,E,T);  % plot della mesh
+pdemesh(P,E,T);  % plot della mesh
 P=P';
 T=T';
 m=size(T,1);

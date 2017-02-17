@@ -9,8 +9,8 @@ out = 'no';
 plot = 'no';
 
 % Lambda Array Definition
-% lambda = [1, 100, 10000, 1000000];
-lambda = [0.0001, 0.01, 1, 100, 10000, 1000000];
+% lambda = [0.0001, 0.001, 1, 100, 10000, 1000000];
+lambda = [0.0001, 1, 1000, 1000000, 10000000000];
 nl = length(lambda);
 
 % h_max Array Definition
@@ -38,7 +38,7 @@ for i=1:n
     nver = length(xv);
     nedge = length(endpoints);
     nele = length(edges);
-   % n_p2p0(i) = 2*nver + 2*nedge + nele;
+   % n_p2(i) = 2*nver + 2*nedge + nele;
    % meshplot(xv,yv,endpoints,meshname,i);
     
     
@@ -78,10 +78,10 @@ disp(' ');
   figure(1);
   hold on;
  
-    subplot(3, 3, j);
+    subplot(3, 2, j);
     loglog (h, errL2(:,j), '-*r', h, h.^3,'-b');
     grid on;
-    legend ('ErrL2', 'h^3', 'location', 'northeastoutside');
+    % legend ('ErrL2', 'h^3', 'location', 'northeastoutside');
     title (['ErrL2 (L = ', num2str(lambda(j)), ')']);
   
   saveas (1, 'convL2.png');
@@ -92,9 +92,9 @@ disp(' ');
  
   hold on;
   
-      subplot(3, 3, j), loglog (h, errH1(:,j), '-*r', h, h.^2,'-b');
+      subplot(3, 2, j), loglog (h, errH1(:,j), '-*r', h, h.^2,'-b');
       grid on;
-      legend ('ErrH1', 'h^2', 'location', 'northeastoutside');
+      % legend ('ErrH1', 'h^2', 'location', 'northeastoutside');
       title (['ErrH1 (L = ', num2str(lambda(j)), ')']);
 
   saveas (2, 'convH1.png'); 
@@ -103,22 +103,38 @@ disp(' ');
   end
 
   
- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+ % LATEX ERROR TABLE
+ latex = 'yes';
+ 
+if (strcmp(latex,'yes'))
+ for j=1:nl
+ 
+ sL2 = 'ErrL2	&	$';
+ sH1 = 'ErrH1	&	$';   
+     
+  disp(['lambda = ', num2str(lambda(j))]); 
+  
+  for i=1:n
+      sL2 = [sL2, num2str(errL2(i,j))];
+      sH1 = [sH1, num2str(errH1(i,j))];
+      
+      if (i==n)
+         sL2 = [sL2, '$ \\ \hline'];
+         sH1 = [sH1, '$ \\ \hline']; 
+      else
+          sL2 = [sL2, '$ & $'];
+          sH1 = [sH1, '$ & $'];         
+      end
+  end
+  
+  disp(sL2);
+  disp(sH1);
+  disp('');
+  
+ end 
+  
+end % End If
   
 
-% 
-% figure();
-% loglog (n_p2p0, errL2_P2P0, '-*b');
-% hold on;
-% loglog (n_mini, errL2_MINI, '-*r');
-% title ('ErrL2');
-% legend ('P2P0','MINI');
-% 
-% figure();
-% loglog (n_p2p0, errH1_P2P0, '-*b');
-% hold on;
-% loglog (n_mini, errH1_MINI, '-*r');
-% title ('ErrH1');
-% legend ('P2P0','MINI');
-% 
-%   
+  
+

@@ -242,9 +242,15 @@ clear NL2;
 % ai nodi liberi NL
 %
 
+disp(['sizeA = ', num2str(size(A))]);
 Ah = A(NL,NL);
+disp(['sizeAh = ', num2str(size(Ah))]);
+disp(['sizB = ', num2str(size(B))]);
 Bh = B(NL,:);
+disp(['sizeBh = ', num2str(size(Bh))]);
+disp(['sizeb = ', num2str(size(b))]);
 fh = b(NL);
+disp(['sizefh = ', num2str(size(fh))]);
 %
 clear A
 clear B

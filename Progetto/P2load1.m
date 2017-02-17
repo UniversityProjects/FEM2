@@ -109,17 +109,3 @@ for iele=1:nele
     b(dofg) = b(dofg) + fE;
     %
 end
-
-% --------------------------------------------------
-% Adesso ritagliamo il carico ai gradi di libert? interni 
-% (cond al bordo: Dirichlet omogenee)
-% --------------------------------------------------
-
-nver = length(xv);          % calcolo numero vertici
-nedge = size(endpoints,1);  % calcolo numero lati
-internV = setdiff([1:1:nver],boundary); % indici dei vertici INTERNI
-internE = setdiff([1:1:nedge],boundedges); % indici dei lati INTERNI
-NL = [internV,nver+internE];     % gradi di libert? interni
-
-b = b(NL);
-

@@ -1,5 +1,5 @@
 %
-function [uh] = main_P2(xv,yv,vertices,edges,endpoints,boundary,boundedges);
+function [uh, errL2, errH1] = main_P2_Vect(xv,yv,vertices,edges,endpoints,boundary,boundedges);
 %
 % ---------------------------------------------------------------
 % FEM per k=2
@@ -15,6 +15,14 @@ function [uh] = main_P2(xv,yv,vertices,edges,endpoints,boundary,boundedges);
 %
 % FORMULA DI QUADRATURA 
 %
+
+
+
+
+
+
+
+
 fdq = 'degree=2';
 %
 [xhq,yhq,whq]=quadratura(fdq);
@@ -111,7 +119,7 @@ for iele=1:nele
                 %
                 xq = tmp(1);
                 yq = tmp(2);
-                %
+                %           
                 tmp = dot(...
                       (JFIT*[gphihqx(j,q);gphihqy(j,q)]),...
                       (JFIT*[gphihqx(i,q);gphihqy(i,q)])...
@@ -312,38 +320,37 @@ for iele=1:nele
     %
 end
 %
-% errL2 = sqrt(errL2sq)  % (comprende ambo le componenti)
-disp('Errore relativo in norma H^1')
+errL2 = sqrt(errL2sq)  % (comprende ambo le componenti)
 errH1 = sqrt(errH1sq/uH1)  % (comprende ambo le componenti) 
 %
 
 
-% ----------------------------------
-% PLOT DELLA SOLUZIONE uh COMPONENTE PER COMPONENTE
-% (basato sui valori ai vertici)
-% ----------------------------------
-figure(1)
-for k=1:size(vertices,1)
-    hold on;
-    index=(vertices(k,1:3))';
-    % riga sotto: opzione per funzione nota ai vertici
-    uu_tmp=[uh1(index);uh1(index(1))];  % prima componente
-    % uu_tmp=[uh2(index);uh2(index(1))];  % seconda componente
-    % riga sotto: opzione per funzione costante a tratti
-    % p_tmp = ph(k)*ones(length(index)+1,1); 
-    vert_temp=[xv(index),yv(index); xv(index(1)),yv(index(1))];
-    fill3(vert_temp(:,1),vert_temp(:,2),uu_tmp,uu_tmp); 
-end
-view(3)
-grid on
-colorbar
-hold off        
+% % ----------------------------------
+% % PLOT DELLA SOLUZIONE uh COMPONENTE PER COMPONENTE
+% % (basato sui valori ai vertici)
+% % ----------------------------------
+% figure(1)
+% for k=1:size(vertices,1)
+%     hold on;
+%     index=(vertices(k,1:3))';
+%     % riga sotto: opzione per funzione nota ai vertici
+%     uu_tmp=[uh1(index);uh1(index(1))];  % prima componente
+%     % uu_tmp=[uh2(index);uh2(index(1))];  % seconda componente
+%     % riga sotto: opzione per funzione costante a tratti
+%     % p_tmp = ph(k)*ones(length(index)+1,1); 
+%     vert_temp=[xv(index),yv(index); xv(index(1)),yv(index(1))];
+%     fill3(vert_temp(:,1),vert_temp(:,2),uu_tmp,uu_tmp); 
+% end
+% view(3)
+% grid on
+% colorbar
+% hold off        
         
 % ----------------------------------
 % PLOT DELLA SOLUZIONE uh COME FRECCE AI VERTICI
 % ----------------------------------        
 %       
-figure(2)
-quiver(xv,yv,uh1(1:nver),uh2(1:nver));
+% figure(2)
+% quiver(xv,yv,uh1(1:nver),uh2(1:nver));
 %
 %
