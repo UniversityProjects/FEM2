@@ -109,7 +109,7 @@ disp(' ');
 
   
   % LATEX ERROR TABLE 
- latex = 'yes';
+ latex = 'no';
  
 if (strcmp(latex,'yes'))
  for j=1:nl
